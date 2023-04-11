@@ -1,38 +1,27 @@
-//  Explanation 
-// The problem can be solved using a greedy algorithm with linear time complexity. The basic idea is to traverse the array of fuel units and keep track of the fuel available at each airport.
-
-// We start from the first airport and hire a plane with the fuel available at the starting airport. Then, we move to the next airport using 1 unit of fuel. If we have enough fuel to reach the next airport, we simply use the fuel and continue to the next airport. Otherwise, we need to hire a new plane that has enough fuel to reach the next airport. We repeat this process until we reach the last airport.
-
-// To minimize the number of planes required, we always choose the plane with the maximum fuel available from any previous airport. This ensures that we can reach as far as possible without having to hire a new plane. If we cannot reach the next airport even with the maximum fuel available, then we cannot reach the last airport and return -1.
-
+//  Explanation
+// The code implements an algorithm that finds the minimum number of jumps required to reach the end of an array starting from index 0. The algorithm uses dynamic programming with memoization to optimize the recursive approach. The memoization approach stores results of expensive function calls to avoid redundant computations. The minJumps() function recursively calculates the minimum number of jumps required to reach the end of the array from each index and stores the results in a memoization array. The solve() function initializes the memoization array and calls the minJumps() function with the input array and starting index. The time complexity is O(n^2).
 
 // Code  in JavaScript
-function minPlanesRequired(arr) {
-    const n = arr.length;
-    let fuel = arr[0]; // initialize fuel with the fuel at the starting airport
-    let planes = 1; // initialize number of planes required with 1
-    let maxFuel = arr[0]; // initialize the maximum fuel available with the fuel at the starting airport
-  
-    for (let i = 1; i < n; i++) {
-      fuel--; // use 1 unit of fuel to move to the next airport
-      if (fuel < 0) {
-        // if there is not enough fuel to reach the next airport, we need to hire a new plane
-        if (maxFuel === 0) {
-          // if we cannot refuel from any previous airport, we cannot reach the last airport
-          return -1;
-        }
-        fuel = maxFuel - 1; // refill fuel with the maximum fuel available from any previous airport, minus the distance to the next airport
-        planes++; // hire a new plane
-      }
-      maxFuel = Math.max(maxFuel, arr[i]); // update the maximum fuel available
-    }
-    
-    return planes;
+function minJumps(A, ind, dp) {
+  const INF = 1e9;
+  if (ind == A.length - 1) return 0;
+  if (A[ind] <= 0) return INF;
+  if (dp[ind] != -1) return dp[ind];
+  let ans = INF;
+  for (let i = 1; i <= A[ind] && ind + i < A.length; i++) {
+    ans = Math.min(ans, 1 + minJumps(A, ind + i, dp));
   }
-  
-  const arr1 = [2, 1, 2, 3, 1];
-  console.log(minPlanesRequired(arr1));
-  
-  const arr2 = [1, 6, 3, 4, 5, 0, 0, 0, 6];
-  console.log(minPlanesRequired(arr2));
-  
+  return (dp[ind] = ans);
+}
+
+function solve(A) {
+  const dp = Array(A.length).fill(-1);
+  return minJumps(A, 0, dp);
+}
+
+
+const arr1 = [2, 1, 2, 3, 1];
+console.log(solve(arr1));
+
+const arr2 = [1, 6, 3, 4, 5, 0, 0, 0, 6];
+console.log(solve(arr2));
